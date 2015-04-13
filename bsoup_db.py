@@ -1,47 +1,68 @@
 from bs4 import BeautifulSoup
-import sqlite3
+
 
 # pulls elements we want from overall html
 # raw
-raw_title = soup.findAll("span", {"class": "indexed-biz-name"})
+'''raw_title = soup.findAll("span", {"class": "indexed-biz-name"})
 soup = BeautifulSoup(str(raw_title))
 data_pretty = soup.prettify()
 event_data = open("event_data.txt", "r+")
 event_data.write(str(data_pretty))
+'''
 
-
-# raw > data
-soup = BeautifulSoup(data_pretty)
-data_title = soup.a.text
-# print data_title
-
-# http://www.sixfeetup.com/blog/an-introduction-to-beautifulsoup < this should help
-
+open_event_data = open("event_data.txt", "r+")
 
 # raw > data
-# soup = BeautifulSoup(event_data.read())
 
-for link in soup.find_all('a'):
-	text = link.text.strip()
-	print text
+soup = BeautifulSoup(open_event_data.read())
 
+'''event_name = []
+
+for name in soup.find_all('a'):
+	text = name.text.strip()
+	event_name.append(text)
+
+
+event_link = []
+	
 for link in soup.find_all('a'):
 	url = link.get('href')
-	print url
-	
-	
-	
+	event_link.append(url)
+'''
 
+event_data = []
+	
+for data in soup.find_all('a'):
+	text = data.text.strip()
+	url = data.get('href')
+	event_data.append(text)
+	event_data.append(url)
+
+print event_data
+	
+# event_data = [event_name, event_link]
+
+# print event_data
+	
 # we can call this function when we run a selenium script to add the data to the db
+import sqlite3
  
 conn = sqlite3.connect("db/database.db")
 cursor = conn.cursor()
+
  
-cursor.execute("""CREATE TABLE events
-                  (title text, link text, date text) 
-               """)
-	
+cursor.execute('''
+    CREATE TABLE events(name TEXT, link TEXT)
+ ''')
+
+
 # need to make variables 'title' 'link' 'date' 'category' 'location'
 # import them in from the beautifulsoup file?
-cursor.executemany("INSERT INTO events VALUES (?,?,?)", title, link, date)
+cursor.executemany(''' INSERT INTO events(name, link) VALUES (?,?)''', event_data)
 conn.commit()	
+
+
+
+
+
+
